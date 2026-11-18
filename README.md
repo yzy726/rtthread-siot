@@ -19,7 +19,7 @@ RT-Thread 4.1.1 or compatible APIs, heap, SAL/lwIP and POSIX socket/select suppo
 
 The package consists of this source repository and a separate index for `RT-Thread/packages`. The index must be reviewed and merged there before it appears in the official online package list.
 
-For a local installation, copy this directory to `packages/siot-v1.0.0`, source its `Kconfig` from the BSP configuration, and enable `PKG_USING_SIOT`. The BSP must traverse package `SConscript` files. When using the online index, use its configuration and do not source a second copy of the package menu.
+For a local installation, copy this directory to `packages/siot-v1.0.1`, source its `Kconfig` from the BSP configuration, and enable `PKG_USING_SIOT`. The BSP must traverse package `SConscript` files. When using the online index, use its configuration and do not source a second copy of the package menu.
 
 Enable `SIOT_USING_EXAMPLE` to build the demonstration. Fill in **your** server, MQTT port, username/password, a unique client ID, and publish/subscribe topics. All host/password defaults are empty. First connect your board to its network, then run:
 

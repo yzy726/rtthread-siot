@@ -104,7 +104,8 @@ static int siot_start(void)
     example_stopping = RT_FALSE;
     rt_hw_interrupt_enable(level);
     /* Thread allocation happens after interrupts have been restored. */
-    thread = rt_thread_create("siotdemo", example_entry, RT_NULL, 8192, 20, 10);
+    thread = rt_thread_create("siotdemo", example_entry, RT_NULL, 8192,
+                              RT_THREAD_PRIORITY_MAX / 2, 10);
     if (!thread)
     {
         example_running = RT_FALSE;

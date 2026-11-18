@@ -6,7 +6,7 @@
 
 RT-Thread 4.1.1 或兼容版本，已工作的网络驱动、SAL/lwIP、POSIX socket/select 和堆。软件包包含 Paho 的 MQTTPacket 编解码部分，无需再安装完整 Paho 客户端；请勿同时启用另一份 `pahomqtt`，避免重复符号。
 
-源码和在线索引分别维护。官方索引合并前，可下载 Release 源码，复制到工程 `packages/siot-v1.0.0`，在 BSP Kconfig 中 source 本目录 `Kconfig`，启用 `PKG_USING_SIOT`。使用在线索引时，使用索引提供的菜单，不要再重复 source 本目录菜单。
+源码和在线索引分别维护。官方索引合并前，可下载 Release 源码，复制到工程 `packages/siot-v1.0.1`，在 BSP Kconfig 中 source 本目录 `Kconfig`，启用 `PKG_USING_SIOT`。使用在线索引时，使用索引提供的菜单，不要再重复 source 本目录菜单。
 
 ## 最快验证
 
