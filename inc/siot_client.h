@@ -24,6 +24,9 @@ struct siot_config
     const char *ca_pem;
     siot_message_cb on_message;
     void *user;
+    /* Explicit SIoT v1 compatibility: send QoS 0; success is socket delivery,
+     * not PUBACK. Zero-initialized configurations keep the default QoS 1. */
+    rt_bool_t publish_qos0;
 };
 struct siot_client
 {
@@ -39,7 +42,8 @@ struct siot_client
 void siot_client_init(struct siot_client *client);
 int siot_client_connect(struct siot_client *client, const struct siot_config *config);
 int siot_client_subscribe(struct siot_client *client, const char *topic);
-/* Success means broker PUBACK received, not platform business acceptance. */
+/* Default success means PUBACK. With config.publish_qos0, success only means
+ * the packet was sent; neither mode implies platform business acceptance. */
 int siot_client_publish(struct siot_client *client, const char *topic,
                         const void *payload, int payload_len);
 int siot_client_poll(struct siot_client *client, int timeout_ms);

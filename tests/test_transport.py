@@ -14,7 +14,7 @@ def exact(s, n):
         if not chunk: raise EOFError('client disconnected')
         result += chunk
     return result
-def packet(s):
+def packet(s, with_header=False):
     first = exact(s, 1)[0]
     length, mul = 0, 1
     while True:
@@ -22,7 +22,7 @@ def packet(s):
         length += (b & 127) * mul
         if b < 128: break
         mul *= 128
-    return first >> 4, exact(s, length)
+    return first if with_header else first >> 4, exact(s, length)
 def publish(pid=77, qos=1):
     body = b'\x00\x0ademo/value' + (struct.pack('!H', pid) if qos else b'') + b'test'
     return bytes([0x30 | qos << 1, len(body)]) + body
@@ -38,7 +38,12 @@ def serve(listener, mode, errors):
             pid = body[:2]
             s.sendall(b'\x90\x03' + pid + (b'\x80' if mode == 'subfail' else b'\x01'))
             if mode == 'subfail': return
-            if mode == 'normal':
+            if mode == 'qos0':
+                header, body = packet(s, True)
+                assert header == 0x30 and body == b'\x00\x0ademo/valuepayload'
+                # SIoT v1 emits a nonstandard zero-ID PUBACK even for QoS 0.
+                s.sendall(b'\x40\x02\x00\x00' + publish(qos=0))
+            elif mode == 'normal':
                 kind, body = packet(s); assert kind == 3
                 topic_size = struct.unpack('!H', body[:2])[0]
                 pid = body[2+topic_size:4+topic_size]
@@ -59,7 +64,7 @@ def serve(listener, mode, errors):
     except Exception as e: errors.append(repr(e))
     finally: listener.close()
 
-for mode in ['normal','refusal','subfail','oversize','badlength','truncated','short-qos1','missing-puback']:
+for mode in ['normal','qos0','refusal','subfail','oversize','badlength','truncated','short-qos1','missing-puback']:
     listener = socket.socket()
     listener.bind(('127.0.0.1', 0)); listener.listen(1)
     port = listener.getsockname()[1]
@@ -70,4 +75,4 @@ for mode in ['normal','refusal','subfail','oversize','badlength','truncated','sh
     if result.returncode or errors:
         raise SystemExit(f'FAIL {mode}: rc={result.returncode} {result.stderr} {errors}')
     print('PASS', mode)
-print('Transport regression passed: 8 broker scenarios')
+print('Transport regression passed: 9 broker scenarios')

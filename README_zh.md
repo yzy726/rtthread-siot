@@ -6,7 +6,11 @@
 
 RT-Thread 4.1.1 或兼容版本，已工作的网络驱动、SAL/lwIP、POSIX socket/select 和堆。软件包包含 Paho 的 MQTTPacket 编解码部分，无需再安装完整 Paho 客户端；请勿同时启用另一份 `pahomqtt`，避免重复符号。
 
-源码和在线索引分别维护。官方索引合并前，可下载 Release 源码，复制到工程 `packages/siot-v1.1.0`，在 BSP Kconfig 中 source 本目录 `Kconfig`，启用 `PKG_USING_SIOT`。使用在线索引时，使用索引提供的菜单，不要再重复 source 本目录菜单。
+源码和在线索引分别维护。官方索引合并前，可下载 Release 源码，复制到工程 `packages/siot-v1.1.1`，在 BSP Kconfig 中 source 本目录 `Kconfig`，启用 `PKG_USING_SIOT`。使用在线索引时，使用索引提供的菜单，不要再重复 source 本目录菜单。
+
+v1.1.1 增加显式 QoS 0 发布兼容模式：部分 SIoT v1 服务会断开 QoS 1 发布连接。
+API 默认仍为 QoS 1，需要兼容时设置 `config.publish_qos0=RT_TRUE`，通用示例
+勾选 `SIOT_EXAMPLE_PUBLISH_QOS0`。QoS 0 成功仅表示发出，不伪称收到 PUBACK。
 
 ## 可选的多设备与老师控制端
 
@@ -33,7 +37,7 @@ v1.1.0 增加可手动选择的单独控制、分组、全班广播和保留消�
 
 配置 `struct siot_config`，依次调用 `siot_client_init()`、`siot_client_connect()`、`siot_client_subscribe()`、`siot_client_publish()` 和 `siot_client_poll()`，结束时 `siot_client_disconnect()`。配置字符串在连接期间需要保持有效。
 
-一个 client 的所有操作放在同一线程。接收回调运行在调用线程中，Topic/数据用显式长度表示，不保证以 NUL 结尾；回调中只复制/处理消息，不递归调用 MQTT API。发布成功表示收到了 Broker 的 PUBACK，云平台是否接受业务数据要检查对应业务响应。
+一个 client 的所有操作放在同一线程。接收回调运行在调用线程中，Topic/数据用显式长度表示，不保证以 NUL 结尾；回调中只复制/处理消息，不递归调用 MQTT API。默认发布成功表示收到 PUBACK，显式 QoS 0 模式仅表示发出；业务处理结果需检查对应响应。
 
 完整调用示例见 [README](README.md)，接口行为见 [API 说明](docs/API.md)。
 

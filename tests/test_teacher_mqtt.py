@@ -83,8 +83,9 @@ class Broker:
                     elif kind == 3:
                         length = int.from_bytes(body[:2],'big')
                         topic = body[2:2+length].decode()
-                        self.published.put((topic,json.loads(body[4+length:])))
-                        self.send(b'\x40\x02'+body[2+length:4+length])
+                        qos = (header>>1)&3
+                        self.published.put((topic,json.loads(body[2+length+(2 if qos else 0):])))
+                        self.send(b'\x40\x02'+(body[2+length:4+length] if qos else b'\x00\x00'))
                     elif kind == 12: self.send(b'\xd0\x00')
                     elif kind == 14: break
             except (EOFError,OSError): pass
@@ -113,10 +114,11 @@ def wait_for(predicate, timeout=6):
 
 
 class MqttTests(unittest.TestCase):
-    def start(self, deny=False):
+    def start(self, deny=False, qos=1):
         broker = Broker(deny)
         data = json.loads((root/'tools/teacher/deployment.example.json').read_text(encoding='utf-8'))
         data['broker']['port'] = broker.port
+        data['broker']['publish_qos'] = qos
         data['features'].update(group=True,broadcast=True)
         controller = teacher.Controller(teacher.Policy(data))
         bridge = teacher.MqttBridge(controller,'')
@@ -154,6 +156,18 @@ class MqttTests(unittest.TestCase):
         command = controller.send('device','001','off')
         self.assertFalse(command['broker_accepted'])
         self.assertTrue(broker.published.empty())
+
+    def test_qos0_with_siot_zero_puback(self):
+        broker, controller = self.start(qos=0)
+        wait_for(lambda: controller.snapshot()['broker_ready'])
+        command = controller.send('all','','off')
+        topic, payload = broker.published.get(timeout=2)
+        self.assertEqual(topic,'demo_all/cmd')
+        self.assertTrue(command['transport_sent'])
+        self.assertFalse(command['broker_accepted'])
+        broker.inject('demo_dev_001/ack',{'id':payload['id'],'code':200})
+        wait_for(lambda: '001' in controller.snapshot()['commands'][0]['acks'])
+        self.assertTrue(controller.snapshot()['broker_ready'])
 
 
 if __name__ == '__main__': unittest.main(verbosity=2)

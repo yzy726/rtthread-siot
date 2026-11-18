@@ -7,7 +7,7 @@ A small MQTT 3.1.1 client for connecting RT-Thread applications to SIoT and comp
 ## Features
 
 - RT-Thread SAL/lwIP sockets, with a single caller-owned client and no hidden worker thread.
-- QoS 1 publish with matching PUBACK confirmation; QoS 0/1 receive and checked SUBACK.
+- QoS 1 publish by default, explicit QoS 0 compatibility; QoS 0/1 receive and checked SUBACK.
 - Bounded packet buffers, complete-frame reads, connection/acknowledgement timeouts and keepalive.
 - Optional Mbed TLS 2.x integration with CA, hostname and certificate-validity verification.
 - An optional shell example using configurable connection settings, with start/stop and retry.
@@ -19,7 +19,13 @@ RT-Thread 4.1.1 or compatible APIs, heap, SAL/lwIP and POSIX socket/select suppo
 
 The package consists of this source repository and a separate index for `RT-Thread/packages`. The index must be reviewed and merged there before it appears in the official online package list.
 
-For a local installation, copy this directory to `packages/siot-v1.1.0`, source its `Kconfig` from the BSP configuration, and enable `PKG_USING_SIOT`. The BSP must traverse package `SConscript` files. When using the online index, use its configuration and do not source a second copy of the package menu.
+For a local installation, copy this directory to `packages/siot-v1.1.1`, source its `Kconfig` from the BSP configuration, and enable `PKG_USING_SIOT`. The BSP must traverse package `SConscript` files. When using the online index, use its configuration and do not source a second copy of the package menu.
+
+SIoT v1 services that reject QoS 1 publishing can use the explicit
+`config.publish_qos0 = RT_TRUE` compatibility mode. The default remains QoS 1;
+enable `SIOT_EXAMPLE_PUBLISH_QOS0` for the shell example. QoS 0 success confirms
+socket transmission only. The teacher example sets `broker.publish_qos` to 0;
+select 1 for brokers providing normal PUBACK support.
 
 ## Optional deployment controls (v1.1.0)
 
@@ -77,7 +83,7 @@ static void connect_to_my_server(void)
 
 Set `cfg.on_message` to a receive callback and use `siot_client_publish()` for binary or text payloads. Callback topic/payload pointers are length-delimited, may not be NUL-terminated, and expire when the callback returns. Copy messages to an application queue when another thread needs them. Do not call MQTT APIs recursively from the callback.
 
-Configuration strings must remain valid throughout the connection. `publish()` returning zero means the broker sent a matching PUBACK; application/cloud business acceptance is a separate concern. See [API and porting notes](docs/API.md).
+Configuration strings must remain valid throughout the connection. `publish()` returning zero means PUBACK in default QoS 1 mode, or socket transmission in explicit QoS 0 mode. Application/cloud acceptance is separate. See [API and porting notes](docs/API.md).
 
 ## TLS
 

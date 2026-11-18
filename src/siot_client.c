@@ -353,10 +353,10 @@ int siot_client_publish(struct siot_client *c, const char *name, const void *pay
     if (!c->connected || !name || !name[0] || !payload || size < 0) return -RT_EINVAL;
     if (size + strlen(name) + 10 > sizeof(c->tx)) return -RT_EFULL;
     topic.cstring = (char *)name;
-    id = next_id(c);
-    if (send_packet(c, MQTTSerialize_publish(c->tx, sizeof(c->tx), 0, 1, 0, id, topic,
+    id = c->config.publish_qos0 ? 0 : next_id(c);
+    if (send_packet(c, MQTTSerialize_publish(c->tx, sizeof(c->tx), 0, c->config.publish_qos0 ? 0 : 1, 0, id, topic,
                                             (unsigned char *)payload, size)) < 0) return -RT_ERROR;
-    return await_ack(c, PUBACK, id);
+    return c->config.publish_qos0 ? 0 : await_ack(c, PUBACK, id);
 }
 int siot_client_poll(struct siot_client *c, int timeout_ms)
 {

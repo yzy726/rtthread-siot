@@ -32,6 +32,7 @@ int main(int argc, char **argv)
     config.host = "127.0.0.1"; config.port = (unsigned short)atoi(argv[1]);
     config.client_id = "host-regression"; config.keepalive = 10;
     config.username = "user"; config.password = "password"; config.on_message = message;
+    config.publish_qos0 = !strcmp(argv[2], "qos0");
     siot_client_init(&c);
     result = siot_client_connect(&c, &config);
     if (!strcmp(argv[2], "refusal")) { siot_client_disconnect(&c); return result == -105 ? 0 : 10; }
@@ -39,7 +40,15 @@ int main(int argc, char **argv)
     result = siot_client_subscribe(&c, "demo/value");
     if (!strcmp(argv[2], "subfail")) { siot_client_disconnect(&c); return result < 0 ? 0 : 12; }
     if (result) return 13;
-    if (!strcmp(argv[2], "normal"))
+    if (!strcmp(argv[2], "qos0"))
+    {
+        result = siot_client_publish(&c, "demo/value", "payload", 7);
+        if (result) return 14;
+        for (i = 0; i < 20 && messages < 1; ++i)
+            if (siot_client_poll(&c, 100)) return 15;
+        expected = messages == 1 && c.connected;
+    }
+    else if (!strcmp(argv[2], "normal"))
     {
         result = siot_client_publish(&c, "demo/value", "payload", 7);
         if (result) { fprintf(stderr, "publish failed: %d\n", result); return 14; }

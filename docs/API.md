@@ -14,7 +14,7 @@ The session is clean. Subscribe again after reconnecting. The caller supplies th
 
 ## Publish and receive
 
-`siot_client_publish(client, topic, payload, length)` sends a QoS 1, non-retained message and waits for the matching PUBACK. Binary payloads are supported. Success confirms MQTT broker receipt, not downstream processing. Apply application IDs/idempotence when duplicate commands matter.
+`siot_client_publish(client, topic, payload, length)` defaults to QoS 1, non-retained, and waits for matching PUBACK. Set `config.publish_qos0=RT_TRUE` for SIoT v1 brokers that reject QoS 1 publishes. QoS 0 returns after the complete packet is sent, without claiming PUBACK or application execution. Zero-initialized configurations preserve QoS 1. Binary payloads and application IDs/idempotence remain supported.
 
 `siot_client_poll(client, timeout_ms)` processes one packet and maintains the keepalive. Call it regularly, including while idle. The timeout is capped at 1000 ms. Inbound PUBLISH can also be dispatched while a publish/subscribe acknowledgement is pending.
 
@@ -22,7 +22,7 @@ The callback receives explicit topic/payload lengths and a retain flag. Buffer p
 
 ## Limits and failure behavior
 
-- MQTT 3.1.1, IPv4, QoS 0/1 receive and QoS 1 transmit.
+- MQTT 3.1.1, IPv4, QoS 0/1 receive and QoS 1/default or explicit QoS 0 transmit.
 - Default packet buffers 2048 bytes; configure 1024 to 8192 bytes each.
 - Socket connection, frame I/O and acknowledgement waits use a five-second timeout. DNS is additionally bounded by the chosen lwIP resolver configuration.
 - TLS handshake has a 20-second deadline. Interrupted/truncated frames or malformed lengths close the connection to preserve framing.

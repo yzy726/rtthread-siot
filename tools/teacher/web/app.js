@@ -31,7 +31,7 @@ async function refresh() {
       const card = document.createElement('article'), title = document.createElement('strong'), detail = document.createElement('pre');
       const success = command.expected.filter(id => command.acks[id]?.code === 200), failed = command.expected.filter(id => command.acks[id] && command.acks[id].code !== 200), waiting = command.expected.filter(id => !command.acks[id]);
       title.textContent = command.id + ' · ' + command.topic;
-      detail.textContent = 'MQTT：' + (command.broker_accepted ? '已确认' : '未确认') + (command.error ? ' / ' + command.error : '') + '\n执行成功：' + (success.join(', ') || '暂无') + '\n设备拒绝：' + (failed.join(', ') || '暂无') + '\n待确认：' + (waiting.join(', ') || '无');
+      detail.textContent = 'MQTT：' + (command.broker_accepted ? 'PUBACK 已确认' : command.transport_sent ? 'QoS 0 已发送，无 PUBACK 确认' : '发送未确认') + (command.error ? ' / ' + command.error : '') + '\n执行成功：' + (success.join(', ') || '暂无') + '\n设备拒绝：' + (failed.join(', ') || '暂无') + '\n待确认：' + (waiting.join(', ') || '无');
       card.append(title, detail); el('commands').append(card);
     });
   } catch (error) { notice(error.message, true); }

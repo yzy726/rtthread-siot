@@ -97,6 +97,9 @@ class Policy:
                 raise ValueError('Action params must be a nonempty JSON object of at most 320 bytes')
             self.actions[action_id] = {'id': action_id, 'name': name, 'params': copy.deepcopy(params)}
         self.broker = dict(data['broker'])
+        self.broker.setdefault('publish_qos', 1)
+        if type(self.broker['publish_qos']) is not int or self.broker['publish_qos'] not in [0, 1]:
+            raise ValueError('broker.publish_qos must be 0 or 1')
         self.web = dict(data['web'])
         for section in [self.broker, self.web]:
             if not isinstance(section.get('host'), str) or not section['host'] or '://' in section['host']:
@@ -219,7 +222,8 @@ class Controller:
         payload = json.dumps({'id': command_id, 'params': params}, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
         command = {'id': command_id, 'topic': topic, 'scope': scope, 'target': target,
                    'created': time.time(), 'expected': expected, 'acks': {},
-                   'broker_accepted': False, 'error': ''}
+                   'broker_accepted': False, 'transport_sent': False,
+                   'qos': self.policy.broker['publish_qos'], 'error': ''}
         with self.lock:
             self.commands[command_id] = command
             while len(self.commands) > 64:
@@ -229,7 +233,8 @@ class Controller:
                 raise ConnectionError('No MQTT publisher')
             self.publisher(topic, payload)
             with self.lock:
-                command['broker_accepted'] = True
+                command['transport_sent'] = True
+                command['broker_accepted'] = command['qos'] == 1
         except Exception as exc:
             # Network exceptions may contain connection parameters: expose only
             # the exception type, and keep per-device acknowledgements intact.
@@ -330,7 +335,7 @@ class MqttBridge:
         if not self.controller.snapshot()['broker_ready']:
             raise ConnectionError('MQTT not ready')
         with self.publish_lock:
-            info = self.client.publish(topic, payload, qos=1, retain=False)
+            info = self.client.publish(topic, payload, qos=self.controller.policy.broker['publish_qos'], retain=False)
             if info.rc != self.mqtt.MQTT_ERR_SUCCESS:
                 raise ConnectionError('MQTT publish failed')
             info.wait_for_publish(timeout=5)
@@ -405,7 +410,7 @@ def make_server(controller, token, host, number):
                 if any(not isinstance(data[key], str) for key in data):
                     raise ValueError('Command fields must be strings')
                 result = controller.send(data['scope'], data['target'], data['action'])
-                self.respond(202 if result['broker_accepted'] else 503, result)
+                self.respond(202 if result['transport_sent'] else 503, result)
             except PolicyError as exc:
                 self.respond(403, {'error': str(exc)})
             except (ValueError, UnicodeError) as exc:

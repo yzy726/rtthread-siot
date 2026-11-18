@@ -59,6 +59,9 @@ config SIOT_USING_EXAMPLE
     default n
 
 if SIOT_USING_EXAMPLE
+config SIOT_EXAMPLE_PUBLISH_QOS0
+    bool "SIoT v1 publish compatibility (QoS 0; no PUBACK confirmation)"
+    default n
 config SIOT_EXAMPLE_HOST
     string "Your SIoT server IP or hostname"
     default ""

@@ -18,6 +18,7 @@ example = json.loads((root/'tools/teacher/deployment.example.json').read_text(en
 class TeacherTests(unittest.TestCase):
     def policy(self, **features):
         data = copy.deepcopy(example)
+        data['broker']['publish_qos'] = 1
         data['features'].update(features)
         return teacher.Policy(data)
 
@@ -90,6 +91,15 @@ class TeacherTests(unittest.TestCase):
         self.assertEqual(controller.snapshot()['commands'][0]['acks']['002']['code'], 400)
         self.assertLessEqual(len(command['id']),39)
         self.assertEqual(json.loads(sent[0][1])['params'], {'led_red':0,'led_blue':0,'buzzer':0})
+
+    def test_qos0_socket_delivery_is_not_puback(self):
+        policy = teacher.Policy(copy.deepcopy(example))
+        controller = teacher.Controller(policy, lambda *args: None)
+        command = controller.send('device','001','off')
+        self.assertTrue(command['transport_sent'])
+        self.assertFalse(command['broker_accepted'])
+        self.assertEqual(command['qos'],0)
+        self.assertEqual(command['acks'],{})
 
     def test_inflight_ack_and_network_failure(self):
         controller = teacher.Controller(self.policy())

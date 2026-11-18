@@ -56,6 +56,9 @@ static void example_entry(void *parameter)
     config.password = SIOT_EXAMPLE_PASSWORD;
     config.keepalive = 60;
     config.on_message = received;
+#ifdef SIOT_EXAMPLE_PUBLISH_QOS0
+    config.publish_qos0 = RT_TRUE;
+#endif
 #ifdef SIOT_USING_TLS
     config.use_tls = RT_TRUE;
     config.ca_pem = siot_example_ca_pem;
