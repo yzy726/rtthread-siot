@@ -1,0 +1,4 @@
+New adapter code: SPDX-License-Identifier Apache-2.0.
+MQTTPacket is derived from Eclipse Paho Embedded C, copyright IBM Corp. and its contributors.
+Original copyright headers remain in third_party/MQTTPacket/src.
+See third_party/PAHO-LICENSE and third_party/EDL-LICENSE for third-party terms.
