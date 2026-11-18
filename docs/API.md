@@ -35,6 +35,19 @@ The optional TLS backend uses Mbed TLS 2.x SSL/X509/CTR-DRBG/entropy APIs. Suppl
 
 The source package intentionally provides no STM32 HAL, RNG driver, software RTC policy or linker memory section. Those belong to the BSP/application. The empty example CA is a placeholder and is not a private key.
 
+## Optional command channels
+
+When `SIOT_USING_CHANNELS` is enabled, include `siot_channels.h`. Initialize a
+persistent `struct siot_channels` from Kconfig or explicit runtime labels/routes,
+subscribe after every reconnect, and classify callback topics using the helper.
+Its mask may only select a subset of the compiled scopes. Device state/ack topics
+are always separate from group and broadcast command topics. The helper has no
+payload parser, GPIO side effects or automatic success acknowledgements.
+
+The teacher-side Python tool is independent of the embedded runtime. See
+[deployment controls](CLASSROOM.md) for its configuration, HTTP authentication,
+scope policy, bounded in-memory history and optional ACL export.
+
 ## Third-party codec
 
 `third_party/MQTTPacket` is the codec snapshot carried by the RT-Thread Paho package used during development. Its original headers and EPL/EDL license files remain intact. Do not link a second copy of these codec symbols through `pahomqtt` or another bundled MQTT SDK.

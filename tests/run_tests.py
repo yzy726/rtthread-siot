@@ -20,3 +20,6 @@ cmd += ['-o', str(out/'test_transport.exe')]
 subprocess.run(cmd, check=True)
 subprocess.run([sys.executable,str(root/'tests/test_transport.py')], check=True)
 subprocess.run([sys.executable,str(root/'tests/test_kconfig.py')], check=True)
+subprocess.run([sys.executable,str(root/'tests/test_channels.py')], check=True)
+subprocess.run([sys.executable,str(root/'tests/test_teacher.py')], check=True)
+subprocess.run([sys.executable,str(root/'tests/test_teacher_mqtt.py')], check=True)

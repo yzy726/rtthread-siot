@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SIoT 设备控制</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script></head>
+<body><main><header><p class="eyebrow">RT-Thread · SIoT</p><h1>设备控制台</h1><p>单独操作、按组控制；每块板的执行回执分别确认。</p></header>
+<section id="login"><label for="token">控制口令</label><div class="row"><input id="token" type="password" autocomplete="off" placeholder="部署者设置的 Web control token"><button id="connect">进入控制台</button></div><p>MQTT 密码保留在服务端。此口令只在当前页面内存中使用。</p></section>
+<p id="notice" role="status">请输入部署者配置的控制口令。</p>
+<div id="workspace" hidden><section><h2 id="project"></h2><p id="broker"></p><div class="row"><label>操作范围<select id="scope"></select></label><label>目标<select id="target"></select></label><label>动作<select id="action"></select></label><button id="send">发送命令</button></div><p id="policy"></p></section>
+<section><h2>设备与最近消息</h2><div class="scroll"><table><thead><tr><th>设备</th><th>小组</th><th>最近消息</th><th>状态</th></tr></thead><tbody id="devices"></tbody></table></div></section>
+<section><h2>执行结果</h2><p>MQTT 已接收不等于设备已执行。离线或未回执设备显示“待确认”。</p><div id="commands"></div></section></div>
+<footer>功能由 deployment.json 选择。教师专属 MQTT 权限需在 Broker 配置授权规则。</footer></main></body></html>

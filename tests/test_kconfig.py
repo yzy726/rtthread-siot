@@ -21,12 +21,24 @@ with tempfile.TemporaryDirectory() as directory:
     assert config.syms['PKG_USING_SIOT'].str_value == 'y'
     assert config.syms['SIOT_USING_TLS'].str_value == 'n'
     assert config.syms['SIOT_USING_EXAMPLE'].str_value == 'n'
+    assert config.syms['SIOT_USING_CHANNELS'].str_value == 'n'
     config.syms['SIOT_USING_TLS'].set_value('y')
     assert config.syms['PKG_USING_MBEDTLS'].str_value == 'y'
     assert config.syms['RT_USING_SOFT_RTC'].str_value == 'n'
     config.syms['SIOT_USING_EXAMPLE'].set_value('y')
     assert config.syms['SIOT_EXAMPLE_HOST'].str_value == ''
     assert config.syms['SIOT_EXAMPLE_PASSWORD'].str_value == ''
+    config.syms['SIOT_USING_CHANNELS'].set_value('y')
+    assert config.syms['SIOT_CHANNEL_DEVICE'].str_value == 'y'
+    assert config.syms['SIOT_CHANNEL_GROUP'].str_value == 'n'
+    assert config.syms['SIOT_CHANNEL_BROADCAST'].str_value == 'n'
+    assert config.syms['SIOT_CHANNEL_REJECT_RETAINED'].str_value == 'y'
+    config.syms['SIOT_CHANNEL_DEVICE'].set_value('n')
+    config.syms['SIOT_CHANNEL_GROUP'].set_value('y')
+    config.syms['SIOT_CHANNEL_BROADCAST'].set_value('y')
+    assert config.syms['SIOT_CHANNEL_DEVICE'].str_value == 'n'
+    assert config.syms['SIOT_CHANNEL_GROUP'].str_value == 'y'
+    assert config.syms['SIOT_CHANNEL_BROADCAST'].str_value == 'y'
     assert not any(name.startswith(('IOT_PLATFORM_','BSP_')) for name in config.syms)
     config.syms['RT_VER_NUM'].set_value('0x30105')
     assert config.syms['PKG_USING_SIOT'].str_value == 'n'

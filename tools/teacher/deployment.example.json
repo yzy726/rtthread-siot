@@ -1,0 +1,33 @@
+{
+    "project": "demo",
+    "features": {
+        "individual": true,
+        "group": false,
+        "broadcast": false,
+        "monitor": true
+    },
+    "broker": {
+        "host": "127.0.0.1",
+        "port": 1883,
+        "username": "",
+        "password_env": "SIOT_MQTT_PASSWORD",
+        "tls": false,
+        "ca_file": ""
+    },
+    "web": {
+        "host": "127.0.0.1",
+        "port": 8765,
+        "token_env": "SIOT_CONTROL_TOKEN"
+    },
+    "devices": [
+        {"id": "001", "name": "Device 001", "group": "g01"},
+        {"id": "002", "name": "Device 002", "group": "g01"},
+        {"id": "003", "name": "Device 003", "group": "g02"}
+    ],
+    "actions": [
+        {"id": "red-on", "name": "红灯亮", "params": {"led_red": 1}},
+        {"id": "blue-on", "name": "蓝灯亮", "params": {"led_blue": 1}},
+        {"id": "beep", "name": "蜂鸣器响3秒", "params": {"buzzer": 1, "buzzer_ms": 3000}},
+        {"id": "off", "name": "全部输出关闭", "params": {"led_red": 0, "led_blue": 0, "buzzer": 0}}
+    ]
+}

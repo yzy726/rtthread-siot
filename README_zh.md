@@ -6,7 +6,11 @@
 
 RT-Thread 4.1.1 或兼容版本，已工作的网络驱动、SAL/lwIP、POSIX socket/select 和堆。软件包包含 Paho 的 MQTTPacket 编解码部分，无需再安装完整 Paho 客户端；请勿同时启用另一份 `pahomqtt`，避免重复符号。
 
-源码和在线索引分别维护。官方索引合并前，可下载 Release 源码，复制到工程 `packages/siot-v1.0.1`，在 BSP Kconfig 中 source 本目录 `Kconfig`，启用 `PKG_USING_SIOT`。使用在线索引时，使用索引提供的菜单，不要再重复 source 本目录菜单。
+源码和在线索引分别维护。官方索引合并前，可下载 Release 源码，复制到工程 `packages/siot-v1.1.0`，在 BSP Kconfig 中 source 本目录 `Kconfig`，启用 `PKG_USING_SIOT`。使用在线索引时，使用索引提供的菜单，不要再重复 source 本目录菜单。
+
+## 可选的多设备与老师控制端
+
+v1.1.0 增加可手动选择的单独控制、分组、全班广播和保留消息策略；默认关闭多设备层，保留原有用法。状态和回执始终按设备区分。附带独立 Python 网页控制端，部署者用 JSON 选择功能、名单与允许动作，并可导出 Broker ACL 示例。完整设置、接口及权限边界见 [多设备部署教程](docs/CLASSROOM.md)。
 
 ## 最快验证
 

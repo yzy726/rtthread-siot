@@ -9,3 +9,6 @@ __pycache__/
 tests/output/
 rtconfig.h
 .config
+tools/teacher/deployment.json
+.env
+*.log
